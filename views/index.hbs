@@ -4,7 +4,7 @@
     <div class="list-group">
         {{#each posts }}
             <a href="/posts/{{ this._id }}" class="list-group-item">
-                {{ this.title }}
+                {{ this.title }}{{this.notifications.length}}
             </a>
         {{/each}}
     </div>

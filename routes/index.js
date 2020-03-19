@@ -1,15 +1,29 @@
 const router = require('express').Router();
     const Post = require('./../models/post');
+    const Notifications = require('../models/notification')
 
-    router.get('/', (req, res, next) => {
+    router.get('/', async (req, res, next) => {
+        const notifications = await Notifications.find({})
+
         Post.find({}, {title: true}).exec((err, posts) => {
-            res.render('index', { posts });
+            for(let i =0; i<posts.length;i++){
+                posts[i].notifications = [];
+            }
+            
+            for(let i = 0; i<posts.length;i++){
+                for(let j = 0; j<notifications.length;j++){
+                    if(posts[i]._id == notifications[j].postId){
+                        posts[i].notifications.push(notifications[j])
+                    }
+                }
+            }
+            res.render('index', { posts});
         });
     });
 
-    router.get('/posts/:id', (req, res, next) => {
+    router.get('/posts/:id', async (req, res, next) => {
         Post.findOne({ _id: req.params.id }).exec((err, post) => {
-            res.render('post', { post });
+            res.render('post', { post});
         });
     });
 
@@ -22,6 +36,13 @@ const router = require('express').Router();
             secret: process.env.PUSHER_APP_SECRET,
             cluster: process.env.PUSHER_APP_CLUSTER
         });
+
+        Notifications.create([{
+            postId:req.params.id,
+            body:req.body.body,
+            read:false
+         }])
+        
 
         pusher.trigger('notifications', 'post_updated', post, req.headers['x-socket-id']);
         res.send('');

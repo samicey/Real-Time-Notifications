@@ -28,13 +28,14 @@
         });
 
         // request permission to display notifications, if we don't alreay have it
-        Notification.requestPermission();
+        // Notification.requestPermission();
         pusher.subscribe('notifications')
                 .bind('post_updated', function (post) {
                     // if we're on the home page, show an "Updated" badge
-                    if (window.location.pathname === "/") {
-                        $('a[href="/posts/' + post._id + '"]').append('<span class="badge badge-primary badge-pill">Updated</span>');
-                    }
+                   // if (window.location.pathname === "/") {
+                        $('a[href="/posts/' + post._id + '"]').append('<span class="badge badge-primary badge-pill">'+'\{\{this.notifications.length\}\}'+'</span>');
+                        
+                   // }
                     var notification = new Notification(post.title + " was just updated. Check it out.");
                     notification.onclick = function (event) {
                         window.location.href = '/posts/' + post._id;
